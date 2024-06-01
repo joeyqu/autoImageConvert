@@ -1,3 +1,4 @@
 {
-  "listen_dir": ""
+  "listen_dir": "",
+  "supported_formats": [".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".webp"]
 }
