@@ -8,12 +8,15 @@ from pystray import MenuItem as item
 import pystray
 import json
 import logging
+import pillow_avif
+from tendo import singleton
+me = singleton.SingleInstance() 
 # set the default vars
 script_dir = os.path.expanduser("~\Downloads\\")
 config_editor_path = "notepad.exe"
 config = {}
 supportedFormats = ()
-observer = None
+observer = Observer()
 
 def load_config():
   # Check if config.json exists
@@ -57,17 +60,12 @@ def reloadConfig():
     logger.info(f"executing reload")
     old_config = script_dir, config_editor_path, supportedFormats
     logger.info(f"old config: {old_config}")
-    logger.info(f"stopping observer")
-    observer.stop()
-    logger.info(f"waiting for observer to stop..............")
-    observer.join()
+    observer.unschedule_all()
     logger.info(f"reloading config")
     load_config()
-    logger.info(f"new config: {script_dir, config_editor_path, supported_formats}")
+    logger.info(f"new config: {script_dir, config_editor_path, supportedFormats}")
     logger.info(f"restarting observer")
-    observer = Observer()
     observer.schedule(NewFileHandler(), script_dir, recursive=True)
-    observer.start()
     
 def runAtStartup():
     os.system('SchTasks /Create /SC ONLOGON /TN "AutoStart auto-image-convert" /TR \"\'C:\\Program Files (x86)\Auto Image Convert\\convert.exe\'\" /rl HIGHEST /F')
@@ -167,7 +165,6 @@ if __name__ == '__main__':
 
     # Create an observer and attach the event handler
       
-    observer = Observer()
     observer.schedule(NewFileHandler(), script_dir, recursive=True)
     observer.start()
     logger.info('script loaded, listening for new files in ' + script_dir)
